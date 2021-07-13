@@ -245,6 +245,7 @@ AlurakutProfileSidebarMenuDefault.Wrapper = styled.div`
 // OrkutNostalgicIconSet
 // ================================================================================================================
 export function OrkutNostalgicIconSet(props) {
+  /*Tem que dar uma olhada certa aqui de como ajustar os icones*/
   return (
     <OrkutNostalgicIconSet.List>
       {[
@@ -269,7 +270,7 @@ export function OrkutNostalgicIconSet(props) {
         { name: 'Legal', slug: 'legal', icon: 'cool' },
         { name: 'Sexy', slug: 'sexy', icon: 'heart' },
       ].map(({ name, slug, icon }) => {
-        const total = props[slug] ? props[slug] : 2;
+        const total = props[slug] ? props[slug] : 0;
         return (
           <li key={`orkut__icon_set__${slug}`}>
             <span className="OrkutNostalgicIconSet__title">
