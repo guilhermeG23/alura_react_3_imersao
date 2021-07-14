@@ -12,7 +12,8 @@ const GlobalStyle = createGlobalStyle`
   /*Config geral*/
   body {
     font-family: sans-serif;
-    background-color: #D9E6F6;
+    /*background-color: #D9E6F6;*/
+    background-image: url(https://images4.alphacoders.com/182/thumb-1920-182834.jpg);
   }
   /*Config nextjs*/
   #__next {
