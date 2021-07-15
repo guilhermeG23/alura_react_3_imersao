@@ -1,6 +1,8 @@
 import { createGlobalStyle, ThemeProvider } from 'styled-components'
 import { AlurakutStyles } from '../src/lib/AlurakutCommons'
 
+
+
 //Configuracao padrão para todos os componentes + reset css
 const GlobalStyle = createGlobalStyle`
   /*Reset css*/  

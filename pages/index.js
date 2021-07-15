@@ -5,6 +5,7 @@ import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/Box'
 import { AlurakutMenu, OrkutNostalgicIconSet, AlurakutProfileSidebarMenuDefault } from '../src/lib/AlurakutCommons'
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations'
+import { GraphQLClient, ClientContext } from 'graphql-hooks'
 
 /*
 const Title = styled.h1`
@@ -33,6 +34,67 @@ function ProfileSidebar(propriedades) {
   );
 }
 
+/*Pessoas que seguem o github alvo*/
+function ProfileRelationsFollowersBox(props) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h1 className="smallTitle">
+        {props.title} ({props.items.length})
+      </h1>
+      <ul>
+        {props.items.slice(0,6).map((valorAtual) => {
+          return (
+            <li key={valorAtual.id}>
+              <a href={`${valorAtual.html_url}`} key={valorAtual.id}>
+                <img src={`${valorAtual.avatar_url}`} />
+                <span>{valorAtual.login}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  );
+}
+
+/*
+promessa de buscar um valor
+Funcionamento de chuncks -> Partes de recebimento de informacao
+
+fetch("https://api.github.com/users/guilhermeG23").then(function (retornoDados){
+  console.log(retornoDados);
+})
+
+fetch("https://api.github.com/users/guilhermeG23").then(function (retornoDados){
+    return retornoDados.json();
+}).then(function (retornoConvertido){
+    console.log(retornoConvertido);
+})
+
+
+fetch("https://api.github.com/users/guilhermeG231").then(function (retornoDados){
+    return retornoDados.json();
+}).then(function (retornoConvertido){
+    console.log(retornoConvertido);
+}).catch(function (error) {
+    console.error(error);
+})
+
+O then envelopa uma promessa e faz a operação ser assincrona, necessitando seguir os passos para apresentar os resultados
+
+
+fetch("https://api.github.com/users/guilhermeG231").then(function (retornoDados){
+    if(retornoDados.ok) {    
+      return retornoDados.json();
+    }
+    throw new Error('Conexão falhou :( ' + retornoDados.status)
+}).then(function (retornoConvertido){
+    console.log(retornoConvertido);
+}).catch(function (error) {
+    console.error(error);
+})
+*/
+
 //Return só entende um componente, isso é, tudo tem que estar dentro de uma tag para ser interpretado pela parte que recebe o return
 export default function Home() {
   //Rookies -> Ganchos
@@ -47,6 +109,19 @@ export default function Home() {
   }]);
   //console.log(comunidades.length);
   //const comunidades = ['']  
+
+  //Só dar render depois de terminar a operacao e só fazer isso depois de processar a ação
+  const [seguidores, setSeguidores] = React.useState([]);
+  React.useEffect(function () {
+    const seguidores = fetch(`https://api.github.com/users/${usuarioAleatorio}/followers`).then(function (recebimentoDaConexao){
+      return recebimentoDaConexao.json();
+    }).then(function (dadosConvertidos){
+      setSeguidores(dadosConvertidos); 
+    })
+  }, []);
+
+  //console.log(seguidores);
+
   return (
     <>
       {/*Achei onde coloca o valor do usuario no menu minimizado*/}
@@ -154,6 +229,8 @@ export default function Home() {
           </Box>
         </div>
         <div class="profileRelationsArea" style={{ gridArea: 'profileRelationsArea'}}>
+          {/*Pessoas do github*/}
+          <ProfileRelationsFollowersBox title="Seguidores" items={seguidores} />
           {/*Comunidades*/}
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">

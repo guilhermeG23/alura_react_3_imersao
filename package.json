@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "graphql-hooks": "^5.2.0",
     "next": "latest",
     "next.js": "^1.0.3",
     "react": "^17.0.2",
