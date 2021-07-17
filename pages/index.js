@@ -5,7 +5,10 @@ import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/Box'
 import { AlurakutMenu, OrkutNostalgicIconSet, AlurakutProfileSidebarMenuDefault } from '../src/lib/AlurakutCommons'
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations'
-import { GraphQLClient, ClientContext } from 'graphql-hooks'
+
+//Cookies
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 
 /*
 const Title = styled.h1`
@@ -96,9 +99,12 @@ fetch("https://api.github.com/users/guilhermeG231").then(function (retornoDados)
 */
 
 //Return só entende um componente, isso é, tudo tem que estar dentro de uma tag para ser interpretado pela parte que recebe o return
-export default function Home() {
+//Props é usado para compartilhando de informações entre os componentes
+export default function Home(props) {
+  console.log(props.githubUser);
   //Rookies -> Ganchos
-  const usuarioAleatorio = 'guilhermeG23';
+  //const usuarioAleatorio = 'guilhermeG23';
+  const usuarioAleatorio = props.githubUser;
   const pessoasFavortias = ['juunegreiros', 'omariosouto', 'peas', 'LINUXtips']  
   //Setar o primeiro estado
   const [comunidades, setComunidades] = React.useState([]);
@@ -313,4 +319,44 @@ export default function Home() {
       </MainGrid>
     </>
   );
+}
+
+//Só funciona do lado do server
+//Pegar o token e carregar o usuario
+export async function getServerSideProps(context) {
+  //console.log('teste', nookies.get(context).USER_TOKEN);
+  const cookies = nookies.get(context);
+  const token = cookies.USER_TOKEN;
+
+  //Autenticando o usuario via endpoint
+  //Return true or false para o token
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth', {
+    headers: {
+        Authorization: token
+      }
+  })
+  .then((resposta) => resposta.json())
+
+  //Se não houver autenticacao do token, volta para o /login
+  if(!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      }
+    }
+  }
+
+  //Depois de tudo, o token é colocando em uma variavel para o props
+  console.log(jwt.decode(token));
+  //Pega o nome de usuario -> Esta selecionando o mesmo nome de campo do token traduzido
+  const { githubUser } = jwt.decode(token)
+
+  //props podem ser recuperadas pelos componentes
+  //O githubUser aqui não recebe nada por motivos que o campo é de mesmo nome aquele que carrega um valor
+  return {
+      props: {
+          githubUser
+      },
+  }
 }
