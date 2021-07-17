@@ -101,22 +101,51 @@ export default function Home() {
   const usuarioAleatorio = 'guilhermeG23';
   const pessoasFavortias = ['juunegreiros', 'omariosouto', 'peas', 'LINUXtips']  
   //Setar o primeiro estado
-  const [comunidades, setComunidades] = React.useState([{
-    id: new Date().toISOString(), 
+  const [comunidades, setComunidades] = React.useState([]);
+  /*
+  {
+    idData: new Date().toISOString(), 
     title: "teste", 
-    image:"https://images.sftcdn.net/images/t_app-cover-m,f_auto/p/befbcde0-9b36-11e6-95b9-00163ed833e7/260663710/the-test-fun-for-friends-screenshot.jpg",
+    imageUrl:"https://images.sftcdn.net/images/t_app-cover-m,f_auto/p/befbcde0-9b36-11e6-95b9-00163ed833e7/260663710/the-test-fun-for-friends-screenshot.jpg",
     url: "https://youtube.com/",
-  }]);
+  }
+  ]);
+  */
   //console.log(comunidades.length);
   //const comunidades = ['']  
 
   //Só dar render depois de terminar a operacao e só fazer isso depois de processar a ação
   const [seguidores, setSeguidores] = React.useState([]);
   React.useEffect(function () {
+    //Seguidores do github
     const seguidores = fetch(`https://api.github.com/users/${usuarioAleatorio}/followers`).then(function (recebimentoDaConexao){
       return recebimentoDaConexao.json();
     }).then(function (dadosConvertidos){
       setSeguidores(dadosConvertidos); 
+    })
+
+    //Dato CMS - API Gaph
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization' : '95c53c1490e23e05f0f2debbf29ca3',
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }, 
+      body: JSON.stringify({"query": `query {
+        allCommunities {
+          iddata,
+          title,
+          imageurl,
+          url
+        }
+      }`})
+    })
+    .then((response) => response.json())
+    .then((respostaCompleta) => {
+      const comunidadesDato = respostaCompleta.data.allCommunities;
+      //console.log(comunidadesDato);
+      setComunidades(comunidadesDato);
     })
   }, []);
 
@@ -182,19 +211,32 @@ export default function Home() {
               ) {
                 /*Criando um objeto com o capturado*/
                 const comunidade = {
-                  id: new Date().toISOString(),
+                  iddata: new Date().toISOString(),
                   title: dadosDoForm.get('title'),
-                  image: dadosDoForm.get('image'),
+                  imageurl: dadosDoForm.get('image'),
                   url: dadosDoForm.get('url'),
                 }
+
+                //Insert no datocms
+                fetch('/api/comunidades', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type' : 'application/json'
+                  },
+                  body: JSON.stringify(comunidade),
+                }).then(async (response) => {
+                  const dados = await response.json();
+                  const comunidade = dados.registro;
+                  const comunidadesTotais = [...comunidades, comunidade];
+                  setComunidades(comunidadesTotais);
+                })
               
                 /*
                 console.log(dadosDoForm.get('title'));
                 console.log(dadosDoForm.get('image'));
                 */
                 //console.log(e);
-                const comunidadesTotais = [...comunidades, comunidade];
-                setComunidades(comunidadesTotais);
+
             }
 
             }}>
@@ -239,9 +281,9 @@ export default function Home() {
             <ul>
               {comunidades.slice(0,6).map((valorAtual) => {
                 return (
-                  <li key={valorAtual.id}>
+                  <li key={valorAtual.iddata}>
                     <a href={`${valorAtual.url}`} key={valorAtual.title}>
-                      <img src={`${valorAtual.image}`} />
+                      <img src={`${valorAtual.imageurl}`} />
                       <span>{valorAtual.title}</span>
                     </a>
                   </li>

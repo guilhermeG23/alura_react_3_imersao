@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "datocms-client": "^3.4.11",
     "graphql-hooks": "^5.2.0",
     "next": "latest",
     "next.js": "^1.0.3",
